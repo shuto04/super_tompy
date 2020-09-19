@@ -1,77 +1,88 @@
 #include <Arduino.h>
 #include <M5Stack.h>
-#include <Wire.h>
-#define SERVO_ADDR 0x53
+#include <RhythmServo.h>
 
-class Servo
+#define SERVO_NUM 3
+#define BEAT_LEN 16
+
+typedef enum {
+    Pause = 0,
+    Play,
+    NumState
+} State;
+State state = Pause;
+
+uint8_t beats[SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+                                      {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
+                                      {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}};
+int beatIndex = 0;
+// int beatInterval = 125; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
+int beatInterval = 176; // 85 bpm
+unsigned long lastUpdate;
+
+RhythmServo servos[SERVO_NUM] = {RhythmServo(1, beatInterval), 
+                                 RhythmServo(3, beatInterval),
+                                 RhythmServo(5, beatInterval)};
+
+
+void servo_reset(int ang)
 {
-    uint8_t _pin;
-    int _pos;
-    int _minAng;
-    int _maxAng;
-    int _increment;
-    int _updateInterval;
-    unsigned long _lastUpdate;
+    for(int i=0; i<SERVO_NUM;++i)
+    {
+        servos[i].Reset(0);
+    }
+    delay(1000);
+}
 
-    public:
-        Servo(uint8_t pin, int interval, int minAng, int maxAng)
-        {
-            _pin = pin;
-            _updateInterval = interval;
-            _minAng = minAng;
-            _maxAng = maxAng;
-            _increment = 1;
-        }
+void servo_update()
+{
+    unsigned long current_time = millis();
+    if(current_time - lastUpdate > beatInterval){
+        lastUpdate = current_time;
+        beatIndex = (beatIndex+1) % BEAT_LEN;
+    }
 
-        void Update()
-        {
-            if((millis() - _lastUpdate) > _updateInterval)
-            {
-                _lastUpdate = millis();
-                _pos += _increment;
-                _write_angle(_pos);
-                Serial.println(_pos);
-                if ((_pos >= _maxAng) || (_pos <= _minAng)) // end of sweep
-                {
-                    // reverse direction
-                    _increment = -_increment;
-                }                
-            }
-        }
-
-        // addr 0x01 means "control the number 1 servo by us"
-        void _write_us(uint16_t us) {
-            Wire.beginTransmission(SERVO_ADDR);
-            Wire.write(0x00 | _pin);
-            Wire.write(us & 0x00ff);
-            Wire.write(us >> 8 & 0x00ff);
-            Wire.endTransmission();
-        }
-
-        // addr 0x11 means "control the number 1 servo by angle"
-        void _write_angle(uint8_t angle) {
-            
-            Wire.beginTransmission(SERVO_ADDR);
-            Wire.write(0x10 | _pin);
-            Wire.write(angle);
-            Wire.endTransmission();
-        }        
-};
-
-Servo servo1(1, 5, 0, 20);
-Servo servo2(3, 25, 0, 20);
+    for(int i=0; i<SERVO_NUM;++i)
+    {
+        servos[i].Update(current_time, beats[i][beatIndex]);
+    }
+}
 
 void setup() {
     M5.begin(true, false, true);
-    M5.Lcd.setTextFont(4);
-    M5.Lcd.setCursor(70, 100);
-    M5.Lcd.print("Servo Example");
+    M5.Lcd.println("Super tompy");
+    M5.Lcd.println("Start by Left button");
 
     Wire.begin(21, 22, 100000);
+
+    servo_reset(0);
+
+    state = Pause;
+}
+
+void input()
+{
+    M5.update();
+    if(M5.BtnA.wasPressed())
+    {
+        state = State((state + 1) % NumState);
+        if (state == Play)  
+            M5.Lcd.println("Play");
+        else
+            M5.Lcd.println("Pause");
+    }
+}
+
+void update()
+{
+    if (state == Play)
+    {
+        servo_update();
+    }
 }
 
 void loop()
 {
-    servo1.Update();
-    servo2.Update();
+    input();
+    update();
 }
