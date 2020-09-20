@@ -3,7 +3,11 @@
 #include <RhythmServo.h>
 
 #define SERVO_NUM 3
+#define SERVO_ALL_NUM 12
+
 #define BEAT_LEN 16
+
+#define INITIAL_ANGLE 90
 
 typedef enum {
     Pause = 0,
@@ -20,18 +24,18 @@ int beatIndex = 0;
 int beatInterval = 176; // 85 bpm
 unsigned long lastUpdate;
 
-RhythmServo servos[SERVO_NUM] = {RhythmServo(1, beatInterval), 
-                                 RhythmServo(3, beatInterval),
-                                 RhythmServo(5, beatInterval)};
+RhythmServo servos[SERVO_NUM] = {RhythmServo(1, beatInterval, INITIAL_ANGLE), 
+                                 RhythmServo(3, beatInterval, INITIAL_ANGLE),
+                                 RhythmServo(5, beatInterval, INITIAL_ANGLE)};
 
 
 void servo_reset(int ang)
 {
-    for(int i=0; i<SERVO_NUM;++i)
+    for(int i=0; i<SERVO_ALL_NUM;++i)
     {
-        servos[i].Reset(0);
+        servos[i].Reset(ang);
     }
-    delay(1000);
+    delay(3000);
 }
 
 void servo_update()
@@ -55,7 +59,7 @@ void setup() {
 
     Wire.begin(21, 22, 100000);
 
-    servo_reset(0);
+    servo_reset(INITIAL_ANGLE);
 
     state = Pause;
 }

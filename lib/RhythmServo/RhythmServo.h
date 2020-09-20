@@ -15,18 +15,18 @@ class RhythmServo
     unsigned long _lastUpdate;
 
     public:
-        RhythmServo(uint8_t pin, int beatInterval)
+        RhythmServo(uint8_t pin, int beatInterval, int initial_ang)
         {
             _pin = pin;
-            _minAng = 0;
-            _maxAng = beatInterval / 10;         // 0 -> 20 -> 0 can be 100msec
+            _pos = _minAng = initial_ang;
+            _maxAng = initial_ang + beatInterval / 10;         // 0 -> 20 -> 0 can be 100msec
             _increment = 1;
             _updateInterval = 5;  // 動作速度：0.3秒/60度 https://www.amazon.co.jp/dp/B07TYYLMVY
         }
 
         void Reset(int ang)
         {
-            _write_us(ang);
+            _write_angle(ang);
         }
 
         void Update(unsigned long current_time, uint8_t canPlay)
@@ -43,6 +43,11 @@ class RhythmServo
                     _increment = -_increment;
                 }                
             }
+        }
+
+        int Pos()
+        {
+            return _pos;
         }
 
         // addr 0x01 means "control the number 1 servo by us"
