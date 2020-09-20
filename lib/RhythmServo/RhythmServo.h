@@ -4,50 +4,85 @@
 #include <Wire.h>
 #define SERVO_ADDR 0x53
 
+typedef enum{
+    Plus = 1,
+    Minus = -1,
+} RotateDirection;
+
 class RhythmServo
 {
     uint8_t _pin;
     int _pos;
-    int _minAng;
-    int _maxAng;
+    int _baseAng;
+    int _targetAng;
+    int _rotate_direction;
     int _increment;
     int _updateInterval;
     unsigned long _lastUpdate;
 
     public:
-        RhythmServo(uint8_t pin, int beatInterval, int initial_ang)
+        RhythmServo(uint8_t pin, int beatInterval, int baseAng, RotateDirection dir)
         {
             _pin = pin;
-            _pos = _minAng = initial_ang;
-            _maxAng = initial_ang + beatInterval / 10;         // 0 -> 20 -> 0 can be 100msec
-            _increment = 1;
+            _pos = _baseAng = baseAng;
+            _rotate_direction = dir;
+            _targetAng = baseAng + beatInterval / 10 * _rotate_direction;         // 0 -> 20 -> 0 can be 100msec
+            _increment = dir;
             _updateInterval = 5;  // 動作速度：0.3秒/60度 https://www.amazon.co.jp/dp/B07TYYLMVY
         }
 
-        void Reset(int ang)
+        void Reset()
         {
-            _write_angle(ang);
+            _write_angle(_baseAng);
+            _pos = _baseAng;
         }
 
-        void Update(unsigned long current_time, uint8_t canPlay)
+        void Update(uint8_t canPlay)
         {
-            if((current_time - _lastUpdate) > _updateInterval && canPlay)
+            unsigned long currentTime = millis();
+            if((currentTime - _lastUpdate) > _updateInterval && canPlay)
             {
-                _lastUpdate = current_time;
-                
+                _lastUpdate = currentTime;
+
                 _pos += _increment;
                 _write_angle(_pos);
-                if ((_pos >= _maxAng) || (_pos <= _minAng)) // end of sweep
-                {
+
+                if (_rotate_direction > 0 && (_pos >= _targetAng || _pos <= _baseAng))
+                {// e.g. ang 90 -> 100 -> 90
                     // reverse direction
                     _increment = -_increment;
-                }                
+                }
+                else if (_rotate_direction < 0 && (_pos >= _baseAng || _pos <= _targetAng))
+                {// e.g. ang 100 -> 90 -> 100
+                    // reverse direction
+                    _increment = -_increment;
+                }
             }
         }
 
         int Pos()
         {
             return _pos;
+        }
+
+        int BasePos()
+        {
+            return _baseAng;
+        }
+
+        int TargetAng()
+        {
+            return _targetAng;
+        }
+
+        int RotateDirection()
+        {
+            return _rotate_direction;
+        }
+
+        uint8_t Pin()
+        {
+            return _pin;
         }
 
         // addr 0x01 means "control the number 1 servo by us"

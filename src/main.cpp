@@ -3,11 +3,8 @@
 #include <RhythmServo.h>
 
 #define SERVO_NUM 3
-#define SERVO_ALL_NUM 12
 
 #define BEAT_LEN 16
-
-#define INITIAL_ANGLE 90
 
 typedef enum {
     Pause = 0,
@@ -21,19 +18,21 @@ uint8_t beats[SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
                                       {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}};
 int beatIndex = 0;
 // int beatInterval = 125; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
-int beatInterval = 176; // 85 bpm
+// int beatInterval = 176; // 85 bpm
+int beatInterval = 250; // 85 bpm
 unsigned long lastUpdate;
+unsigned long printLastUpdate;
 
-RhythmServo servos[SERVO_NUM] = {RhythmServo(1, beatInterval, INITIAL_ANGLE), 
-                                 RhythmServo(3, beatInterval, INITIAL_ANGLE),
-                                 RhythmServo(5, beatInterval, INITIAL_ANGLE)};
+RhythmServo servos[SERVO_NUM] = {RhythmServo(1, beatInterval, 100, Minus), 
+                                 RhythmServo(3, beatInterval, 95, Plus),
+                                 RhythmServo(5, beatInterval, 90, Plus)};
 
 
-void servo_reset(int ang)
+void servo_reset()
 {
-    for(int i=0; i<SERVO_ALL_NUM;++i)
+    for(int i=0; i<SERVO_NUM;++i)
     {
-        servos[i].Reset(ang);
+        servos[i].Reset();
     }
     delay(3000);
 }
@@ -48,7 +47,7 @@ void servo_update()
 
     for(int i=0; i<SERVO_NUM;++i)
     {
-        servos[i].Update(current_time, beats[i][beatIndex]);
+        servos[i].Update(beats[i][beatIndex]);
     }
 }
 
@@ -59,9 +58,21 @@ void setup() {
 
     Wire.begin(21, 22, 100000);
 
-    servo_reset(INITIAL_ANGLE);
+    servo_reset();
+}
 
-    state = Pause;
+void display()
+{
+    unsigned long currentTime = millis();
+    if(currentTime - printLastUpdate > 100){
+        printLastUpdate = currentTime;
+        M5.Lcd.setCursor(0, 190);
+        for(int i=0; i<SERVO_NUM;++i)
+        {
+            M5.Lcd.printf("%d: %+4d, %d, %d, %d\n", servos[i].Pin(), servos[i].Pos(), 
+                servos[i].BasePos(), servos[i].TargetAng(), servos[i].RotateDirection());
+        }
+    }
 }
 
 void input()
@@ -87,6 +98,7 @@ void update()
 
 void loop()
 {
+    display();
     input();
     update();
 }
