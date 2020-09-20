@@ -16,6 +16,7 @@ class RhythmServo
     int _baseAng;
     int _targetAng;
     int _rotate_direction;
+    int _offset;
     int _increment;
     int _updateInterval;
     unsigned long _lastUpdate;
@@ -26,15 +27,31 @@ class RhythmServo
             _pin = pin;
             _pos = _baseAng = baseAng;
             _rotate_direction = dir;
-            _targetAng = baseAng + beatInterval / 10 * _rotate_direction;         // 0 -> 20 -> 0 can be 100msec
-            _increment = dir;
-            _updateInterval = 5;  // 動作速度：0.3秒/60度 https://www.amazon.co.jp/dp/B07TYYLMVY
+            _offset = beatInterval / 10;
+            _increment = _rotate_direction * _offset;
+            _targetAng = baseAng + _increment;         // 0 -> 20 -> 0 can be 100msec
+            // 動作速度：0.3秒/60度 https://www.amazon.co.jp/dp/B07TYYLMVY
+            _updateInterval = 5 * beatInterval / 10;  
         }
 
         void Reset()
         {
-            _write_angle(_baseAng);
-            _pos = _baseAng;
+            if(_pos != _baseAng)
+            {
+                _write_angle(_baseAng);
+                _pos = _baseAng;
+                _increment = _rotate_direction * _offset;
+            }
+        }
+
+        void Set()
+        {
+            if(_pos != _targetAng)
+            {
+                _write_angle(_targetAng);
+                _pos = _targetAng;
+                _increment = -_rotate_direction * _offset;
+            }
         }
 
         void Update(uint8_t canPlay)
@@ -78,6 +95,11 @@ class RhythmServo
         int RotateDirection()
         {
             return _rotate_direction;
+        }
+
+        int Increment()
+        {
+            return _increment;
         }
 
         uint8_t Pin()

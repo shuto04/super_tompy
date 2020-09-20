@@ -7,19 +7,21 @@
 #define BEAT_LEN 16
 
 typedef enum {
-    Pause = 0,
+    PauseWithBase = 0,
+    PauseWithTarget,
     Play,
     NumState
 } State;
-State state = Pause;
+State state = PauseWithBase;
 
 uint8_t beats[SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
                                       {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
                                       {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}};
 int beatIndex = 0;
 // int beatInterval = 125; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
-// int beatInterval = 176; // 85 bpm
-int beatInterval = 250; // 85 bpm
+int beatInterval = 176; // 85 bpm
+// int beatInterval = 250; // 60 bpm
+// int beatInterval = 500; // 30 bpm
 unsigned long lastUpdate;
 unsigned long printLastUpdate;
 
@@ -34,7 +36,14 @@ void servo_reset()
     {
         servos[i].Reset();
     }
-    delay(3000);
+}
+
+void servo_set()
+{
+    for(int i=0; i<SERVO_NUM;++i)
+    {
+        servos[i].Set();
+    }
 }
 
 void servo_update()
@@ -59,12 +68,15 @@ void setup() {
     Wire.begin(21, 22, 100000);
 
     servo_reset();
+    delay(1000);
 }
 
 void display()
 {
     unsigned long currentTime = millis();
     if(currentTime - printLastUpdate > 100){
+        M5.Lcd.startWrite();
+
         printLastUpdate = currentTime;
         M5.Lcd.setCursor(0, 190);
         for(int i=0; i<SERVO_NUM;++i)
@@ -72,6 +84,14 @@ void display()
             M5.Lcd.printf("%d: %+4d, %d, %d, %d\n", servos[i].Pin(), servos[i].Pos(), 
                 servos[i].BasePos(), servos[i].TargetAng(), servos[i].RotateDirection());
         }
+        if (state == Play)
+            M5.Lcd.println("Play           \n");
+        else if(state == PauseWithBase)
+            M5.Lcd.println("PauseWithBase  \n");
+        else if(state == PauseWithTarget)
+            M5.Lcd.println("PauseWithTarget\n");        
+
+        M5.Lcd.endWrite();
     }
 }
 
@@ -81,10 +101,6 @@ void input()
     if(M5.BtnA.wasPressed())
     {
         state = State((state + 1) % NumState);
-        if (state == Play)  
-            M5.Lcd.println("Play");
-        else
-            M5.Lcd.println("Pause");
     }
 }
 
@@ -93,6 +109,12 @@ void update()
     if (state == Play)
     {
         servo_update();
+    }else if(state == PauseWithBase)
+    {
+        servo_reset();
+    }else if(state == PauseWithTarget)
+    {
+        servo_set();
     }
 }
 
