@@ -2,7 +2,6 @@
 #define _H_RHYTHM_SERVO_
 
 #include <Wire.h>
-#define SERVO_ADDR 0x53
 
 typedef enum{
     Plus = 1,
@@ -109,7 +108,7 @@ class RhythmServo
 
         // addr 0x01 means "control the number 1 servo by us"
         void _write_us(uint16_t us) {
-            Wire.beginTransmission(SERVO_ADDR);
+            Wire.beginTransmission(0x53);
             Wire.write(0x00 | _pin);
             Wire.write(us & 0x00ff);
             Wire.write(us >> 8 & 0x00ff);
@@ -119,7 +118,7 @@ class RhythmServo
         // addr 0x11 means "control the number 1 servo by angle"
         void _write_angle(uint8_t angle) {
             
-            Wire.beginTransmission(SERVO_ADDR);
+            Wire.beginTransmission(0x53);
             Wire.write(0x10 | _pin);
             Wire.write(angle);
             Wire.endTransmission();
