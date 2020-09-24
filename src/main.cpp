@@ -3,8 +3,8 @@
 #include <RhythmServo.h>
 #include <AnimationServo.h>
 
-#define RHYTHM_SERVO_NUM 3
-#define ANIMATION_SERVO_NUM 1
+#define RHYTHM_SERVO_NUM 6
+#define ANIMATION_SERVO_NUM 6
 
 #define BEAT_LEN 16
 #define PATTERN_LEN 16
@@ -19,22 +19,32 @@ typedef enum {
 State state = Pause;
 
 uint8_t beat0[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
-                                      {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0},
-                                      {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}};
+                                             {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}, 
+                                            };
 uint8_t beat1[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0},
-                                      {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-                                      {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}};
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                            };
 // uint8_t patterns[PATTERN_LEN] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
 // uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint8_t patterns[PATTERN_LEN] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int beatIndex = 0;
 int patternIndex = 0;
 
 // int beatInterval = (60. / 120.) / 4. * 1000; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
 // int beatInterval = (60. / 85.) / 4. * 1000;  // 85 bpm 
-// int beatInterval = (60. / 81.4) / 4. * 1000; // 81.4 bpm 
-int beatInterval = (60. / 60.) / 4. * 1000;  // 60 bpm
+int beatInterval = (60. / 81.4) / 4. * 1000; // 81.4 bpm 
+// int beatInterval = (60. / 60.) / 4. * 1000;  // 60 bpm
+// int beatInterval = (60. / 150.) / 4. * 1000;  // 60 bpm
+// int beatInterval = (60. / 75.) / 4. * 1000;  // 60 bpm
 // int beatInterval = (60. / 30.) / 4. * 1000;  // 30 bpm
 
 
@@ -42,13 +52,20 @@ unsigned long lastUpdate;
 unsigned long printLastUpdate;
 bool lastWasReset = false;
 
-RhythmServo rhythm_servos[RHYTHM_SERVO_NUM] = {RhythmServo(1, beatInterval, 90, Minus), 
-                                 RhythmServo(3, beatInterval, 95, Plus),
-                                 RhythmServo(5, beatInterval, 90, Plus)};
+RhythmServo rhythm_servos[RHYTHM_SERVO_NUM] = {RhythmServo(1,  beatInterval, 90, Minus), 
+                                               RhythmServo(3,  beatInterval, 95, Plus),                                               
+                                               RhythmServo(5,  beatInterval, 90, Plus),
+                                               RhythmServo(7,  beatInterval, 95, Plus),
+                                               RhythmServo(9,  beatInterval, 95, Plus),
+                                               RhythmServo(11, beatInterval, 95, Plus)};
 
 KeyFrame keyframes[KEYFRAME_LEN] = { {110, 200}, {90, 200}, {110, 200}, {90, 200}, {120, 100}, {90, 100}, {120, 100}, {90, 100}};
-AnimationServo anim_servos[ANIMATION_SERVO_NUM] = {AnimationServo(7, 90, keyframes, KEYFRAME_LEN)};
-
+AnimationServo anim_servos[ANIMATION_SERVO_NUM] = {AnimationServo(0, 90, keyframes, KEYFRAME_LEN),
+                                                   AnimationServo(2, 90, keyframes, KEYFRAME_LEN),
+                                                   AnimationServo(4, 90, keyframes, KEYFRAME_LEN),
+                                                   AnimationServo(6, 90, keyframes, KEYFRAME_LEN),
+                                                   AnimationServo(8, 90, keyframes, KEYFRAME_LEN),
+                                                   AnimationServo(10, 90, keyframes, KEYFRAME_LEN)};
 
 void servo_reset()
 {
@@ -60,7 +77,6 @@ void servo_reset()
     {
         anim_servos[i].Reset();
     }
-
 }
 
 void servo_set()
