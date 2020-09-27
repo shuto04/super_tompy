@@ -3,6 +3,8 @@
 #include <RhythmServo.h>
 #include <AnimationServo.h>
 
+#include <CSV_Parser.h>
+
 #define RHYTHM_SERVO_NUM 6
 #define ANIMATION_SERVO_NUM 6
 
@@ -17,6 +19,11 @@ typedef enum {
     NumState
 } State;
 State state = Pause;
+
+
+const char *csv_file_path = "/dram_pattern.csv";
+
+uint8_t **beats = nullptr;
 
 uint8_t beat0[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
                                              {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
@@ -177,7 +184,32 @@ void servo_update()
 }
 
 void setup() {
-    M5.begin(true, false, true);
+    M5.begin(true, true, true);
+
+    File csv_file = SD.open(csv_file_path);
+    CSV_Parser cp("sL", false, ',');
+    if(!csv_file){
+        M5.Lcd.println("Failed to open csv file.");
+        while(1);
+    }
+    while(csv_file.available()){
+        cp << csv_file.read();
+    }
+    csv_file.close();
+    cp.parseLeftover();
+
+    beats = new uint8_t*[cp.getRowsCount()];
+    for(int row = 0; row < cp.getRowsCount(); row++)
+        beats[row] = new uint8_t[cp.getColumnsCount()-1];
+    for(int col = 1; col < cp.getColumnsCount(); col++){
+        char **values = (char**)cp[col-1];
+        for(int row = 0; row < cp.getRowsCount(); row++)
+        {
+            beats[row][col] = (uint8_t)(atoi(values[row]));
+        }
+    }
+    M5.Lcd.println("Finished to load file.");
+
     M5.Lcd.println("Super tompy");
     M5.Lcd.println("BtnA: Start/Pause");
     M5.Lcd.println("BtnB: Pause and set base/target position");
@@ -252,7 +284,7 @@ void update()
 
 void loop()
 {
-    display();
-    input();
-    update();
+    // display();
+    // input();
+    // update();
 }
