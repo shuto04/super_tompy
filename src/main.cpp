@@ -189,28 +189,6 @@ void servo_update()
 void setup() {
     M5.begin(true, true, true);
 
-    // File csv_file = SD.open(csv_file_path);
-    // CSV_Parser cp("sL", false, ',');
-    // if(!csv_file){
-    //     M5.Lcd.println("Failed to open csv file.");
-    //     while(1);
-    // }
-    // while(csv_file.available()){
-    //     cp << csv_file.read();
-    // }
-    // csv_file.close();
-    // cp.parseLeftover();
-
-    // beats = new uint8_t*[cp.getRowsCount()];
-    // for(int row = 0; row < cp.getRowsCount(); row++)
-    //     beats[row] = new uint8_t[cp.getColumnsCount()-1];
-    // for(int col = 1; col < cp.getColumnsCount(); col++){
-    //     char **values = (char**)cp[col-1];
-    //     for(int row = 0; row < cp.getRowsCount(); row++)
-    //     {
-    //         beats[row][col] = (uint8_t)(atoi(values[row]));
-    //     }
-    // }
     {
         File csv_file = SD.open(pattern_csv_file_path);
         CSV_Parser cp("sL", false, ',');
@@ -226,41 +204,40 @@ void setup() {
 
         beats = new uint8_t*[cp.getRowsCount()];
         servo_names = new String[cp.getRowsCount()];
+        char **values = (char**)cp[0];        
         for(int row = 0; row < cp.getRowsCount(); row++)
+        {
             beats[row] = new uint8_t[cp.getColumnsCount()-1];
+            servo_names[row] = (uint8_t)(atoi(values[row]));
+        }
         for(int col = 1; col < cp.getColumnsCount(); col++){
-            char **values = (char**)cp[col];
+            values = (char**)cp[col-1];
             for(int row = 0; row < cp.getRowsCount(); row++)
             {
-                if(col == 0)
-                {
-                    servo_names[row] = values[row];
-                }else{                
-                    beats[row][col] = (uint8_t)(atoi(values[row]));
-                }
+                beats[row][col-1] = (uint8_t)(atoi(values[row]));
             }
         }
     }
     {
-        // File csv_file = SD.open(pattern_list_csv_file_path);
-        // CSV_Parser cp("sL", false, ',');
-        // if(!csv_file){
-        //     M5.Lcd.println("Failed to open csv file.");
-        //     while(1);
-        // }
-        // while(csv_file.available()){
-        //     cp << csv_file.read();
-        // }
-        // csv_file.close();
-        // cp.parseLeftover();
-        // cp.print();
-        // patterns_list = new uint8_t[cp.getRowsCount()];
-        // bpm_list = new uint8_t[cp.getRowsCount()];        
-        // for(int col = 0; col < cp.getColumnsCount(); col++){
-        //     char **values = (char**)cp[col];
-        //     patterns_list[col] = (uint8_t)(atoi(values[0]));
-        //     bpm_list[col] = (uint8_t)(atoi(values[1]));
-        // }
+        File csv_file = SD.open(pattern_list_csv_file_path);
+        CSV_Parser cp("sL", false, ',');
+        if(!csv_file){
+            M5.Lcd.println("Failed to open csv file.");
+            while(1);
+        }
+        while(csv_file.available()){
+            cp << csv_file.read();
+        }
+        csv_file.close();
+        cp.parseLeftover();
+        cp.print();
+        patterns_list = new uint8_t[cp.getColumnsCount()-1];
+        bpm_list = new uint8_t[cp.getColumnsCount()-1];        
+        for(int col = 1; col < cp.getColumnsCount(); col++){
+            char **values = (char**)cp[col-1];
+            patterns_list[col-1] = (uint8_t)(atoi(values[0]));
+            bpm_list[col-1] = (uint8_t)(atoi(values[1]));
+        }
     }
 
     M5.Lcd.println("Finished to load file.");
