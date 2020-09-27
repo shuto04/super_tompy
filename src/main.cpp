@@ -20,10 +20,13 @@ typedef enum {
 } State;
 State state = Pause;
 
-
-const char *csv_file_path = "/dram_pattern.csv";
+const char *pattern_csv_file_path = "/dram_pattern.csv";
+const char *pattern_list_csv_file_path = "/dram_pattern_list.csv";
 
 uint8_t **beats = nullptr;
+String *servo_names = nullptr;
+uint8_t *patterns_list = nullptr;
+uint8_t *bpm_list = nullptr;
 
 uint8_t beat0[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
                                              {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
@@ -186,28 +189,80 @@ void servo_update()
 void setup() {
     M5.begin(true, true, true);
 
-    File csv_file = SD.open(csv_file_path);
-    CSV_Parser cp("sL", false, ',');
-    if(!csv_file){
-        M5.Lcd.println("Failed to open csv file.");
-        while(1);
-    }
-    while(csv_file.available()){
-        cp << csv_file.read();
-    }
-    csv_file.close();
-    cp.parseLeftover();
+    // File csv_file = SD.open(csv_file_path);
+    // CSV_Parser cp("sL", false, ',');
+    // if(!csv_file){
+    //     M5.Lcd.println("Failed to open csv file.");
+    //     while(1);
+    // }
+    // while(csv_file.available()){
+    //     cp << csv_file.read();
+    // }
+    // csv_file.close();
+    // cp.parseLeftover();
 
-    beats = new uint8_t*[cp.getRowsCount()];
-    for(int row = 0; row < cp.getRowsCount(); row++)
-        beats[row] = new uint8_t[cp.getColumnsCount()-1];
-    for(int col = 1; col < cp.getColumnsCount(); col++){
-        char **values = (char**)cp[col-1];
+    // beats = new uint8_t*[cp.getRowsCount()];
+    // for(int row = 0; row < cp.getRowsCount(); row++)
+    //     beats[row] = new uint8_t[cp.getColumnsCount()-1];
+    // for(int col = 1; col < cp.getColumnsCount(); col++){
+    //     char **values = (char**)cp[col-1];
+    //     for(int row = 0; row < cp.getRowsCount(); row++)
+    //     {
+    //         beats[row][col] = (uint8_t)(atoi(values[row]));
+    //     }
+    // }
+    {
+        File csv_file = SD.open(pattern_csv_file_path);
+        CSV_Parser cp("sL", false, ',');
+        if(!csv_file){
+            M5.Lcd.println("Failed to open csv file.");
+            while(1);
+        }
+        while(csv_file.available()){
+            cp << csv_file.read();
+        }
+        csv_file.close();
+        cp.parseLeftover();
+
+        beats = new uint8_t*[cp.getRowsCount()];
+        servo_names = new String[cp.getRowsCount()];
         for(int row = 0; row < cp.getRowsCount(); row++)
-        {
-            beats[row][col] = (uint8_t)(atoi(values[row]));
+            beats[row] = new uint8_t[cp.getColumnsCount()-1];
+        for(int col = 1; col < cp.getColumnsCount(); col++){
+            char **values = (char**)cp[col];
+            for(int row = 0; row < cp.getRowsCount(); row++)
+            {
+                if(col == 0)
+                {
+                    servo_names[row] = values[row];
+                }else{                
+                    beats[row][col] = (uint8_t)(atoi(values[row]));
+                }
+            }
         }
     }
+    {
+        // File csv_file = SD.open(pattern_list_csv_file_path);
+        // CSV_Parser cp("sL", false, ',');
+        // if(!csv_file){
+        //     M5.Lcd.println("Failed to open csv file.");
+        //     while(1);
+        // }
+        // while(csv_file.available()){
+        //     cp << csv_file.read();
+        // }
+        // csv_file.close();
+        // cp.parseLeftover();
+        // cp.print();
+        // patterns_list = new uint8_t[cp.getRowsCount()];
+        // bpm_list = new uint8_t[cp.getRowsCount()];        
+        // for(int col = 0; col < cp.getColumnsCount(); col++){
+        //     char **values = (char**)cp[col];
+        //     patterns_list[col] = (uint8_t)(atoi(values[0]));
+        //     bpm_list[col] = (uint8_t)(atoi(values[1]));
+        // }
+    }
+
     M5.Lcd.println("Finished to load file.");
 
     M5.Lcd.println("Super tompy");
