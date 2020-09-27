@@ -31,6 +31,7 @@ class RhythmServo
             _targetAng = baseAng + _increment;         // 0 -> 20 -> 0 can be 100msec
             // 動作速度：0.3秒/60度 https://www.amazon.co.jp/dp/B07TYYLMVY
             _updateInterval = 5 * beatInterval / 10;  
+            _lastUpdate = 0;
         }
 
         void Reset()

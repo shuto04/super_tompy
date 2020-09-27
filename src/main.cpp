@@ -7,7 +7,7 @@
 #define ANIMATION_SERVO_NUM 6
 
 #define BEAT_LEN 16
-#define PATTERN_LEN 16
+#define PATTERN_LEN 20
 
 #define KEYFRAME_LEN 8
 
@@ -18,38 +18,89 @@ typedef enum {
 } State;
 State state = Pause;
 
-uint8_t beat0[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
-                                             {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+uint8_t beat0[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0},
+                                             {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}, 
                                             };
-uint8_t beat1[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0},
+uint8_t beat1[RHYTHM_SERVO_NUM][BEAT_LEN] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                            };
+uint8_t beat2[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
                                              {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
                                             };
+uint8_t beat3[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                            };
+uint8_t beat4[RHYTHM_SERVO_NUM][BEAT_LEN] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
+                                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                            };
+uint8_t beat5[RHYTHM_SERVO_NUM][BEAT_LEN] = {{1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+                                             {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                            };
+uint8_t beat6[RHYTHM_SERVO_NUM][BEAT_LEN] = {{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                            };
+uint8_t beat7[RHYTHM_SERVO_NUM][BEAT_LEN] = {{0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                            };
+uint8_t beat8[RHYTHM_SERVO_NUM][BEAT_LEN] = {{0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0},
+                                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                             {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                            };
+
 // uint8_t patterns[PATTERN_LEN] = {0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1};
 // uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint8_t patterns[PATTERN_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint8_t patterns[PATTERN_LEN] = {0, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 4, 1, 5, 6, 7, 7, 7, 8};
 
 int beatIndex = 0;
 int patternIndex = 0;
 
 // int beatInterval = (60. / 120.) / 4. * 1000; // 120 bpm -> 2 beat / 1sec -> 500msec / 4つ打ち (500 / 4) = 125
+int beatInterval = (60. / 140) / 4. * 1000;  // 140 bpm 
 // int beatInterval = (60. / 85.) / 4. * 1000;  // 85 bpm 
-int beatInterval = (60. / 81.4) / 4. * 1000; // 81.4 bpm 
+// int beatInterval = (60. / 81.4) / 4. * 1000; // 81.4 bpm 
 // int beatInterval = (60. / 60.) / 4. * 1000;  // 60 bpm
 // int beatInterval = (60. / 150.) / 4. * 1000;  // 60 bpm
 // int beatInterval = (60. / 75.) / 4. * 1000;  // 60 bpm
 // int beatInterval = (60. / 30.) / 4. * 1000;  // 30 bpm
 
 
-unsigned long lastUpdate;
-unsigned long printLastUpdate;
+unsigned long lastUpdate = 0;
+unsigned long printLastUpdate = 0;
 bool lastWasReset = false;
 
 RhythmServo rhythm_servos[RHYTHM_SERVO_NUM] = {RhythmServo(1,  beatInterval, 90, Minus), 
@@ -89,18 +140,24 @@ void servo_set()
 
 void servo_update()
 {
-    unsigned long current_time = millis();
-    if(current_time - lastUpdate > beatInterval){
-        lastUpdate = current_time;
-        beatIndex = (beatIndex+1) % BEAT_LEN;
-        if(beatIndex == 0)
-            patternIndex = (patternIndex+1) % PATTERN_LEN; 
-    }
-
     for(int i=0; i<RHYTHM_SERVO_NUM;++i)
     {
-        if(patterns[patternIndex] > 0)
+        if(patterns[patternIndex] == 1)
             rhythm_servos[i].Update(beat1[i][beatIndex]);
+        else if(patterns[patternIndex] == 2)
+            rhythm_servos[i].Update(beat2[i][beatIndex]);        
+        else if(patterns[patternIndex] == 3)
+            rhythm_servos[i].Update(beat3[i][beatIndex]);
+        else if(patterns[patternIndex] == 4)
+            rhythm_servos[i].Update(beat4[i][beatIndex]);            
+        else if(patterns[patternIndex] == 5)
+            rhythm_servos[i].Update(beat5[i][beatIndex]);                        
+        else if(patterns[patternIndex] == 6)
+            rhythm_servos[i].Update(beat6[i][beatIndex]);                                    
+        else if(patterns[patternIndex] == 7)
+            rhythm_servos[i].Update(beat7[i][beatIndex]);                                    
+        else if(patterns[patternIndex] == 8)
+            rhythm_servos[i].Update(beat8[i][beatIndex]);                                                
         else
             rhythm_servos[i].Update(beat0[i][beatIndex]);
     }
@@ -108,6 +165,14 @@ void servo_update()
     for(int i=0; i<ANIMATION_SERVO_NUM;++i)
     {
         anim_servos[i].Update();
+    }
+
+    unsigned long current_time = millis();
+    if(current_time - lastUpdate > beatInterval){
+        lastUpdate = current_time;
+        beatIndex = (beatIndex+1) % BEAT_LEN;
+        if(beatIndex == 0)
+            patternIndex = (patternIndex+1) % PATTERN_LEN; 
     }
 }
 
